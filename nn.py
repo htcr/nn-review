@@ -101,12 +101,11 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
     Do a backwards pass
 
     Keyword arguments:
-    delta -- errors to backprop
+    delta -- errors to backprop (examples, dimension)
     params -- a dictionary containing parameters
     name -- name of the layer
     activation_deriv -- the derivative of the activation_func
     """
-    grad_X, grad_W, grad_b = None, None, None
     # everything you may need for this layer
     W = params['W' + name]
     b = params['b' + name]
@@ -115,6 +114,12 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
     # do the derivative through activation first
     # then compute the derivative W,b, and X
     
+    delta_pre_sigmoid = sigmoid_deriv(post_act) * delta
+    # (in_dim, out_dim) = (in_dim, examples) @ (examples, out_dim)
+    grad_W = X.transpose() @ delta_pre_sigmoid
+    grad_b = np.sum(delta_pre_sigmoid, axis=0, keepdims=True) # (1, out_dim)
+    # (examples, in_dim) = (examples, out_dim) @ (out_dim, in_dim)
+    grad_X = delta_pre_sigmoid @ W.transpose()
 
     # store the gradients
     params['grad_W' + name] = grad_W
