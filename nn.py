@@ -72,12 +72,12 @@ def softmax(x):
 # y is size [examples,classes]
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
-    assert 'int' in probs.dtype.name
-    mask = probs.astype(np.bool)
-    true_probs = y[mask] # (examples, )
+    assert 'int' in y.dtype.name
+    mask = y.astype(np.bool)
+    true_probs = probs[mask] # (examples, )
     loss = 0.0 - np.sum(np.log(true_probs))
 
-    cls_pred = np.argmax(y, axis=1) #(examples, )
+    cls_pred = np.argmax(probs, axis=1) #(examples, )
 
     # boolean array, (examples, ) True for correctly predicting
     # the corresponding example
@@ -130,6 +130,28 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
 # split x and y into random batches
 # return a list of [(batch1_x,batch1_y)...]
 def get_random_batches(x,y,batch_size):
-    batches = []
+    # x: (total_examples, dim)
+    # y: (total_examples, num_classes), one-hot
     
+    batches = list()
+    N = x.shape[0]
+
+    assert batch_size <= N
+    
+    idxs = list(np.random.permutation(N))
+    
+    remainer_num = N % batch_size
+    if remainer_num > 0:
+        append_on_num = batch_size - remainer_num
+        for i in range(append_on_num):
+            idxs.append(i)
+    
+    p = 0
+    while p < N:
+        batch_idxs = idxs[p:p+batch_size]
+        
+        batches.append((x[batch_idxs, :], y[batch_idxs, :]))
+
+        p += batch_size
+
     return batches

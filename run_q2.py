@@ -18,7 +18,7 @@ x = np.vstack([g0,g1,g2,g3])
 # create labels
 y_idx = np.array([0 for _ in range(10)] + [1 for _ in range(10)] + [2 for _ in range(10)] + [3 for _ in range(10)])
 # turn to one_hot
-y = np.zeros((y_idx.shape[0],y_idx.max()+1))
+y = np.zeros((y_idx.shape[0],y_idx.max()+1), dtype=np.int32)
 y[np.arange(y_idx.shape[0]),y_idx] = 1
 
 # parameters in a dictionary
