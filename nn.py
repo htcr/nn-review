@@ -72,7 +72,20 @@ def softmax(x):
 # y is size [examples,classes]
 # probs is size [examples,classes]
 def compute_loss_and_acc(y, probs):
-    loss, acc = None, None
+    assert 'int' in probs.dtype.name
+    mask = probs.astype(np.bool)
+    true_probs = y[mask] # (examples, )
+    loss = 0.0 - np.sum(np.log(true_probs))
+
+    cls_pred = np.argmax(y, axis=1) #(examples, )
+
+    # boolean array, (examples, ) True for correctly predicting
+    # the corresponding example
+    example_correct = mask[:, cls_pred]
+
+    correct_cnt = np.sum(example_correct)
+
+    acc = float(correct_cnt) / example_correct.shape[0]
     
     return loss, acc 
 
