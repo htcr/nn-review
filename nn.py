@@ -61,8 +61,9 @@ def forward(X,params,name='',activation=sigmoid):
 # x is [examples,classes]
 # softmax should be done for each row
 def softmax(x):
-    res = None
-    
+    maxs = np.max(x, axis=1, keepdims=True) # (examples, 1)
+    exps = np.exp(x-maxs)
+    res = exps / np.sum(exps, axis=1, keepdims=True) # (examples, classes)    
     return res
 
 # Q 2.2.3
