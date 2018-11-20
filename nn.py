@@ -9,8 +9,17 @@ from util import *
 # we will do XW + b. 
 # X be [Examples, Dimensions]
 def initialize_weights(in_size,out_size,params,name=''):
-    W, b = None, None
+    # X: (batch_size, in_size)
+    # W: (in_size, out_size)
+    # b: (1, out_size)
+    # output: (batch_size, out_size)
     
+    low = -(6**0.5) / np.sqrt(in_size + out_size)
+    high = -low
+
+    W = np.random.uniform(low, high, (in_size, out_size)).astype(np.float32)
+    b = np.zeros((1, out_size), dtype=np.float32)
+
     params['W' + name] = W
     params['b' + name] = b
 
