@@ -49,7 +49,8 @@ def forward(X,params,name='',activation=sigmoid):
     b = params['b' + name]
 
     # your code here
-    
+    pre_act = X @ W + b
+    post_act = activation(pre_act)
 
     # store the pre-activation and post-activation values
     # these will be important in backprop
