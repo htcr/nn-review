@@ -4,8 +4,6 @@ from nn import *
 import matplotlib.pyplot as plt
 import pickle
 
-'''
-
 train_data = scipy.io.loadmat('../data/nist36_train.mat')
 valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
 test_data = scipy.io.loadmat('../data/nist36_test.mat')
@@ -105,7 +103,6 @@ saved_params = {k:v for k,v in params.items() if '_' not in k}
 with open('q3_weights.pickle', 'wb') as handle:
     pickle.dump(saved_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-'''
 
 # Q3.1.3
 import matplotlib.pyplot as plt
@@ -143,6 +140,12 @@ plt.show()
 
 # Q3.1.3
 confusion_matrix = np.zeros((36, 36))
+
+cls_pred = np.argmax(test_probs, axis=1)
+cls_gt = np.argmax(test_y, axis=1)
+
+for i in range(cls_pred.shape[0]):
+    confusion_matrix[cls_gt[i], cls_pred[i]] += 1
 
 import string
 plt.imshow(confusion_matrix,interpolation='nearest')
