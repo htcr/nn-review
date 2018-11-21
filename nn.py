@@ -11,14 +11,14 @@ from util import *
 def initialize_weights(in_size,out_size,params,name=''):
     # X: (batch_size, in_size)
     # W: (in_size, out_size)
-    # b: (1, out_size)
+    # b: (out_size)
     # output: (batch_size, out_size)
     
     low = -(6**0.5) / np.sqrt(in_size + out_size)
     high = -low
 
-    W = np.random.uniform(low, high, (in_size, out_size)).astype(np.float32)
-    b = np.zeros((1, out_size), dtype=np.float32)
+    W = np.random.uniform(low, high, (in_size, out_size))
+    b = np.zeros((1, out_size))
 
     params['W' + name] = W
     params['b' + name] = b
@@ -81,7 +81,7 @@ def compute_loss_and_acc(y, probs):
 
     # boolean array, (examples, ) True for correctly predicting
     # the corresponding example
-    example_correct = mask[:, cls_pred]
+    example_correct = mask[np.arange(cls_pred.shape[0]), cls_pred]
 
     correct_cnt = np.sum(example_correct)
 
@@ -114,12 +114,12 @@ def backwards(delta,params,name='',activation_deriv=sigmoid_deriv):
     # do the derivative through activation first
     # then compute the derivative W,b, and X
     
-    delta_pre_sigmoid = sigmoid_deriv(post_act) * delta
+    delta_pre = activation_deriv(post_act) * delta
     # (in_dim, out_dim) = (in_dim, examples) @ (examples, out_dim)
-    grad_W = X.transpose() @ delta_pre_sigmoid
-    grad_b = np.sum(delta_pre_sigmoid, axis=0, keepdims=True) # (1, out_dim)
+    grad_W = X.transpose() @ delta_pre
+    grad_b = np.sum(delta_pre, axis=0, keepdims=True) # (1, out_dim)
     # (examples, in_dim) = (examples, out_dim) @ (out_dim, in_dim)
-    grad_X = delta_pre_sigmoid @ W.transpose()
+    grad_X = delta_pre @ W.transpose()
 
     # store the gradients
     params['grad_W' + name] = grad_W
