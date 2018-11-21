@@ -29,7 +29,7 @@ params = {}
 initialize_weights(2,25,params,'layer1')
 initialize_weights(25,4,params,'output')
 assert(params['Wlayer1'].shape == (2,25))
-assert(params['blayer1'].shape == (25,))
+assert(params['blayer1'].shape == (1,25))
 
 #expect 0, [0.05 to 0.12]
 print("{}, {:.2f}".format(params['blayer1'].sum(),params['Wlayer1'].std()**2))
@@ -89,7 +89,7 @@ import copy
 params_orig = copy.deepcopy(params)
 
 test_bx, test_by = batches[0]
-test_x, test_y = test_bx[0:1, :], test_by[0:1, :]
+test_x, test_y = test_bx[2:3, :], test_by[2:3, :]
 
 eps = 1e-6
 for k,v in params.items():
