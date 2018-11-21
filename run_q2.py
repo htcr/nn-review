@@ -80,6 +80,74 @@ batches = get_random_batches(x,y,5)
 print([_[0].shape[0] for _ in batches])
 batch_num = len(batches)
 
+# ====== gradient check ======
+
+# Q 2.5 should be implemented in this file
+# you can do this before or after training the network. 
+# save the old params
+import copy
+params_orig = copy.deepcopy(params)
+
+test_bx, test_by = batches[0]
+test_x, test_y = test_bx[0:1, :], test_by[0:1, :]
+
+eps = 1e-6
+for k,v in params.items():
+    if '_' in k: 
+        continue
+    # we have a real parameter!
+    # for each value inside the parameter
+    #   add epsilon
+    #   run the network
+    #   get the loss
+    #   compute derivative with central diffs
+    rows, cols = v.shape[0:2]
+    grad_tensor = params['grad_' + k]
+    for i in range(rows):
+        for j in range(cols):
+            
+            vij_orig = v[i, j]
+
+            v[i, j] = vij_orig - eps
+
+            h1 = forward(test_x, params, 'layer1')
+            probs = forward(h1, params, 'output', softmax)
+            loss_minus, acc = compute_loss_and_acc(test_y, probs)
+
+            v[i, j] = vij_orig + eps
+
+            h1 = forward(test_x, params, 'layer1')
+            probs = forward(h1, params, 'output', softmax)
+            loss_plus, acc = compute_loss_and_acc(test_y, probs)
+
+            v[i, j] = vij_orig
+
+            diff_grad = (loss_plus - loss_minus) / (2*eps)
+
+            grad_tensor[i, j] = diff_grad
+
+
+h1 = forward(test_x, params_orig, 'layer1')
+probs = forward(h1, params_orig, 'output', softmax)
+loss, acc = compute_loss_and_acc(test_y, probs)
+delta1 = probs
+delta1 -= test_y
+delta2 = backwards(delta1, params_orig, 'output', linear_deriv)
+backwards(delta2, params_orig, 'layer1', sigmoid_deriv)
+
+total_error = 0
+for k in params.keys():
+    if 'grad_' in k:
+        # relative error
+        err = np.abs(params[k] - params_orig[k])/np.maximum(np.abs(params[k]),np.abs(params_orig[k]))
+        err = err.sum()
+        print('{} {:.2e}'.format(k, err))
+        total_error += err
+# should be less than 1e-4
+print('total {:.2e}'.format(total_error))
+
+# ====== gradient check ======
+
 # WRITE A TRAINING LOOP HERE
 max_iters = 500
 learning_rate = 1e-3
@@ -119,34 +187,4 @@ for itr in range(max_iters):
         print("itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(itr,total_loss,avg_acc))
 
 
-# Q 2.5 should be implemented in this file
-# you can do this before or after training the network. 
 
-
-# save the old params
-import copy
-params_orig = copy.deepcopy(params)
-
-eps = 1e-6
-for k,v in params.items():
-    if '_' in k: 
-        continue
-    # we have a real parameter!
-    # for each value inside the parameter
-    #   add epsilon
-    #   run the network
-    #   get the loss
-    #   compute derivative with central diffs
-    
-    
-
-total_error = 0
-for k in params.keys():
-    if 'grad_' in k:
-        # relative error
-        err = np.abs(params[k] - params_orig[k])/np.maximum(np.abs(params[k]),np.abs(params_orig[k]))
-        err = err.sum()
-        print('{} {:.2e}'.format(k, err))
-        total_error += err
-# should be less than 1e-4
-print('total {:.2e}'.format(total_error))
