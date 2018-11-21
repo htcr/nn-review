@@ -8,10 +8,10 @@ valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
 train_x, train_y = train_data['train_data'], train_data['train_labels']
 valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
 
-max_iters = 50
+max_iters = 100
 # pick a batch size, learning rate
-batch_size = None
-learning_rate = None
+batch_size = 16
+learning_rate = 1e-3
 hidden_size = 64
 
 batches = get_random_batches(train_x,train_y,batch_size)
@@ -20,23 +20,48 @@ batch_num = len(batches)
 params = {}
 
 # initialize layers here
-
-
+initialize_weights(1024, hidden_size, params, 'layer1')
+initialize_weights(hidden_size, 36, params, 'output')
 
 # with default settings, you should get loss < 150 and accuracy > 80%
 for itr in range(max_iters):
     total_loss = 0
     total_acc = 0
     for xb,yb in batches:
-        pass
-        # training loop can be exactly the same as q2!
-        
-    if itr % 2 == 0:
-        print("itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(itr,total_loss,total_acc))
-# run on validation set and report accuracy! should be above 75%
-valid_acc = None
+        # forward
+        h1 = forward(xb, params,'layer1')
+        probs = forward(h1, params,'output',softmax)
 
-print('Validation accuracy: ',valid_acc)
+        # loss
+        # be sure to add loss and accuracy to epoch totals 
+        loss, acc = compute_loss_and_acc(yb, probs)
+        total_loss += loss
+        total_acc += acc
+
+        # backward
+        delta1 = probs
+        delta1 -= yb
+        delta2 = backwards(delta1,params,'output',linear_deriv)
+        backwards(delta2,params,'layer1',sigmoid_deriv)
+
+        # apply gradient
+        for k,v in params.items():
+            if 'grad' in k:
+                name = k.split('_')[1]
+                param_tensor = params[name]
+                grad_tensor = v
+                param_tensor -= learning_rate * grad_tensor
+    
+    total_loss /= len(batches)
+    total_acc /= len(batches)
+
+    print("itr: {:02d} \t loss: {:.2f} \t acc : {:.2f}".format(itr,total_loss,total_acc))
+    # run on validation set and report accuracy! should be above 75%
+    h1 = forward(valid_x, params,'layer1')
+    probs = forward(h1, params,'output',softmax)
+    valid_loss, valid_acc = compute_loss_and_acc(valid_y, probs)
+    print('Validation accuracy: ', valid_acc)
+
 if False: # view the data
     for crop in xb:
         import matplotlib.pyplot as plt
