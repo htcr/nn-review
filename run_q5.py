@@ -3,6 +3,8 @@ import scipy.io
 from nn import *
 from collections import Counter
 import matplotlib.pyplot as plt
+import pickle
+import os
 
 train_data = scipy.io.loadmat('../data/nist36_train.mat')
 valid_data = scipy.io.loadmat('../data/nist36_valid.mat')
@@ -88,6 +90,9 @@ for itr in range(max_iters):
     if itr % lr_rate == lr_rate-1:
         learning_rate *= 0.9
     
+saved_params = {k:v for k,v in params.items() if '_' not in k}
+with open('q5_weights.pickle', 'wb') as handle:
+    pickle.dump(saved_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 plt.subplot(1, 1, 1)
 plt.plot(epochs, losses)
@@ -97,20 +102,31 @@ plt.show()
 
 # visualize some results
 # Q5.3.1
+
+output_dir = 'AE_samples'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 import matplotlib.pyplot as plt
-h1 = forward(xb,params,'layer1',relu)
+h1 = forward(valid_x,params,'layer1',relu)
 h2 = forward(h1,params,'layer2',relu)
 h3 = forward(h2,params,'layer3',relu)
 out = forward(h3,params,'layer4',sigmoid)
-for i in range(5):
-    plt.subplot(2,1,1)
-    plt.imshow(xb[i].reshape(32,32).T)
-    plt.subplot(2,1,2)
-    plt.imshow(out[i].reshape(32,32).T)
-    plt.show()
+for c in range(5):
+    for i in range(10):
+        plt.subplot(2,1,1)
+        plt.imshow(valid_x[c*100+i].reshape(32,32).T)
+        plt.subplot(2,1,2)
+        plt.imshow(out[c*100+i].reshape(32,32).T)
+        plt.savefig(os.path.join(output_dir, 'class_{}_{}.png'.format(c, i)))
 
 
 from skimage.measure import compare_psnr as psnr
 # evaluate PSNR
 # Q5.3.2
-
+all_psnr = 0
+for i in range(valid_x.shape[0]):
+    cur_psnr = psnr(valid_x[i], out[i])
+    all_psnr += cur_psnr
+avg_psnr = all_psnr / valid_x.shape[0]
+print(avg_psnr)
