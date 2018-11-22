@@ -98,3 +98,59 @@ def findLetters(image):
     bw = processed_img
 
     return bboxes, bw
+
+
+def group_lines(bboxes):
+    # build graph
+    N = len(bboxes)
+    graph = list()
+    for i in range(N):
+        graph.append(list())
+    
+    for i in range(N):
+        for j in range(i+1, N):
+            ra1, ca1, ra2, ca2 = bboxes[i]
+            rb1, cb1, rb2, cb2 = bboxes[j]
+            
+            vcenter_a = (ra1+ra2) // 2
+            vcenter_b = (rb1+rb2) // 2
+            
+            dist = abs(vcenter_a - vcenter_b)
+            max_h = max(ra2 - ra1, rb2 - rb1)
+            
+            if dist <= max_h // 2:
+                graph[i].append(j)
+                graph[j].append(i)
+    
+    lines = list() # list of (avg_row_coord, [box, box...])
+    
+    visited = [False]*N
+    
+    sort_boxes_in_line_key = lambda bbox: bbox[1] # sort by left bound
+    sort_line_ley = lambda line: line[0] # sort by avg row coord
+
+    for i in range(N):
+        if not visited[i]:
+            bfsq = list()
+            bfsq.append(i)
+            q_head = 0
+            visited[i] = True
+            while len(bfsq) - q_head > 0:
+                cur_box_id = bfsq[q_head]
+                q_head += 1
+                for adj in graph[cur_box_id]:
+                    if not visited[adj]:
+                        bfsq.append(adj)
+                        visited[adj] = True
+            line_boxes = [bboxes[box_id] for box_id in bfsq]
+            line_boxes.sort(key=sort_boxes_in_line_key)
+            avg_row_coord = sum([b[0] for b in line_boxes]) / float(len(bfsq))
+            lines.append((avg_row_coord, line_boxes))
+    
+    lines.sort(key=sort_line_ley)
+    
+    grouped_bboxes = [line[1] for line in lines]
+
+    return grouped_bboxes
+    
+    

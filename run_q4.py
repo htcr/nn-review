@@ -20,21 +20,35 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 
+
+
 for img in os.listdir('../images'):
     im1 = skimage.img_as_float(skimage.io.imread(os.path.join('../images',img)))
     bboxes, bw = findLetters(im1)
 
+    grouped_bboxes = group_lines(bboxes)
     
-    plt.imshow(bw)
-    for bbox in bboxes:
-        minr, minc, maxr, maxc = bbox
-        rect = matplotlib.patches.Rectangle((minc, minr), maxc - minc, maxr - minr,
-                                fill=False, edgecolor='red', linewidth=2)
-        plt.gca().add_patch(rect)
+    fig, ax = plt.subplots()
+    ax.imshow(bw)
+    for line_bboxes in grouped_bboxes:
+        link_x, link_y = list(), list()
+        for bbox in line_bboxes:
+            minr, minc, maxr, maxc = bbox
+            rect = matplotlib.patches.Rectangle((minc, minr), maxc - minc, maxr - minr,
+                                    fill=False, edgecolor='red', linewidth=2)
+            ax.add_patch(rect)
+
+            link_x.append(minc)
+            link_y.append(minr)
+            ax.plot(link_x, link_y, linewidth=2, color='green')
+
     plt.show()
     
     # find the rows using..RANSAC, counting, clustering, etc.
     
+    
+
+
     # crop the bounding boxes
     # note.. before you flatten, transpose the image (that's how the dataset is!)
     # consider doing a square crop, and even using np.pad() to get your images looking more like the dataset
