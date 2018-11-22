@@ -12,7 +12,7 @@ train_x, train_y = train_data['train_data'], train_data['train_labels']
 valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
 test_x, test_y = test_data['test_data'], test_data['test_labels']
 
-if True: # view the data
+if False: # view the data
     for crop in train_x[0:, :]:
         plt.imshow(crop.reshape(32,32).T)
         plt.show()
@@ -55,6 +55,9 @@ for itr in range(max_iters):
         # backward
         delta1 = probs
         delta1 -= yb
+        
+        # delta1 /= batch_size
+        
         delta2 = backwards(delta1,params,'output',linear_deriv)
         backwards(delta2,params,'layer1',sigmoid_deriv)
 

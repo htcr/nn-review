@@ -76,6 +76,8 @@ def compute_loss_and_acc(y, probs):
     mask = y.astype(np.bool)
     true_probs = probs[mask] # (examples, )
     loss = 0.0 - np.sum(np.log(true_probs))
+    
+    # loss /= probs.shape[0]
 
     cls_pred = np.argmax(probs, axis=1) #(examples, )
 
