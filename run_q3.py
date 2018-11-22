@@ -12,6 +12,11 @@ train_x, train_y = train_data['train_data'], train_data['train_labels']
 valid_x, valid_y = valid_data['valid_data'], valid_data['valid_labels']
 test_x, test_y = test_data['test_data'], test_data['test_labels']
 
+if True: # view the data
+    for crop in train_x[0:, :]:
+        plt.imshow(crop.reshape(32,32).T)
+        plt.show()
+
 max_iters = 100
 # pick a batch size, learning rate
 batch_size = 16
@@ -93,11 +98,6 @@ plt.ylabel('loss')
 plt.xlabel('epochs')
 
 plt.show()
-
-if False: # view the data
-    for crop in xb:
-        plt.imshow(crop.reshape(32,32).T)
-        plt.show()
 
 saved_params = {k:v for k,v in params.items() if '_' not in k}
 with open('q3_weights.pickle', 'wb') as handle:

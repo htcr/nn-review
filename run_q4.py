@@ -24,6 +24,7 @@ for img in os.listdir('../images'):
     im1 = skimage.img_as_float(skimage.io.imread(os.path.join('../images',img)))
     bboxes, bw = findLetters(im1)
 
+    
     plt.imshow(bw)
     for bbox in bboxes:
         minr, minc, maxr, maxc = bbox
@@ -31,6 +32,7 @@ for img in os.listdir('../images'):
                                 fill=False, edgecolor='red', linewidth=2)
         plt.gca().add_patch(rect)
     plt.show()
+    
     # find the rows using..RANSAC, counting, clustering, etc.
     
     # crop the bounding boxes
