@@ -41,6 +41,8 @@ def findLetters(image):
     thresh_adapt_img = skimage.filters.threshold_adaptive(gray_img, threshold_block_size, offset=0.1)
 
     processed_img = thresh_adapt_img.copy()
+    erosion_selem = np.ones((5, 5), dtype=np.bool)
+    processed_img = skimage.morphology.binary_erosion(processed_img, selem=erosion_selem)
 
     erosion_selem = np.ones((9, 9), dtype=np.bool)
     thresh_adapt_img = skimage.morphology.binary_erosion(thresh_adapt_img, selem=erosion_selem)
@@ -152,5 +154,39 @@ def group_lines(bboxes):
     grouped_bboxes = [line[1] for line in lines]
 
     return grouped_bboxes
+
+def crop_img(image, bbox):
+    imgh, imgw = image.shape[0:2]
+    r1, c1, r2, c2 = bbox
+    r1 = int(max(0, r1))
+    r2 = int(min(imgh-1, r2))
+    c1 = int(max(0, c1))
+    c2 = int(min(imgw-1, c2))
     
+    return image[r1:r2, c1:c2]
     
+def is_digit(c):
+    return c != None and ord('0') <= ord(c) <= ord('9')
+
+def is_letter(c):
+    return c != None and (ord('a') <= ord(c) <= ord('z') or ord('A') <= ord(c) <= ord('Z'))
+
+def context_refine(parsed_chars):
+
+    refined_chars = list()
+
+    prev_char = None
+    next_char = None
+
+    N = len(parsed_chars)
+    
+    for i in range(N):
+        prev_char = parsed_chars[i-1] if i > 0 else None
+        next_char = parsed_chars[i+1] if i < N-1 else None
+        if parsed_chars[i] == '0' and (is_letter(prev_char) or is_letter(next_char)):
+            refined_chars.append('O')
+        else:
+            refined_chars.append(parsed_chars[i])
+
+    return refined_chars
+
