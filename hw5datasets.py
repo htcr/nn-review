@@ -3,7 +3,7 @@ import numpy as np
 import scipy.io
 
 class NIST36Dataset(Dataset):
-    def __init__(self, partition, format='vector'):
+    def __init__(self, partition, data_format='vector'):
         # partition: train, valid, test
         # format: vector, image
         mat_path = '../data/nist36_{}.mat'.format(partition)
@@ -11,7 +11,7 @@ class NIST36Dataset(Dataset):
         x, y = data['{}_data'.format(partition)], data['{}_labels'.format(partition)]
         self.x = x # (examples, features)
         self.y = np.argmax(y, axis=1) # (examples, )
-        self.format = format
+        self.data_format = data_format
         self.mean = np.mean(x)
         
     def __len__(self):
@@ -21,7 +21,7 @@ class NIST36Dataset(Dataset):
         sample = self.x[idx, :] # (features, )
         label = self.y[idx] # scalar
 
-        if self.format != 'vector':
+        if self.data_format != 'vector':
             # reshape to img (32, 32)
             sample = sample.reshape(32, 32).transpose()
             sample = sample[np.newaxis, :, :] # chw
