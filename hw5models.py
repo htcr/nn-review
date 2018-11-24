@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 class NaiveNet(nn.Module):
     def __init__(self):
+        super(NaiveNet, self).__init__()
         self.fc1 = nn.Linear(1024, 64)
         self.fc2 = nn.Linear(64, 36)
 

@@ -9,7 +9,7 @@ class NIST36Dataset(Dataset):
         mat_path = '../data/nist36_{}.mat'.format(partition)
         data = scipy.io.loadmat(mat_path)
         x, y = data['{}_data'.format(partition)], data['{}_labels'.format(partition)]
-        self.x = x # (examples, features)
+        self.x = x.astype(np.float32) # (examples, features)
         self.y = np.argmax(y, axis=1) # (examples, )
         self.data_format = data_format
         self.mean = np.mean(x)

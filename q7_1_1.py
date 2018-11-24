@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import copy
 from hw5models import NaiveNet
+import matplotlib.pyplot as plt
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -113,3 +114,16 @@ for samples, labels in test_loader:
 test_acc = float(test_correct) / len(test_set)
 
 print('Test Acc: {:.2f}'.format(test_acc))
+
+plt.subplot(2, 1, 1)
+plt.plot(epochs, train_accs)
+plt.plot(epochs, val_accs)
+plt.ylabel('train/val accuracy')
+
+plt.subplot(2, 1, 2)
+plt.plot(epochs, losses)
+plt.ylabel('loss')
+
+plt.xlabel('epochs')
+
+plt.show()
