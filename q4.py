@@ -190,3 +190,30 @@ def context_refine(parsed_chars):
 
     return refined_chars
 
+def context_refine2(parsed_chars):
+
+    refined_chars = list()
+
+    prev_char = None
+    next_char = None
+
+    N = len(parsed_chars)
+    
+    for i in range(N):
+        prev_char = parsed_chars[i-1] if i > 0 else None
+        next_char = parsed_chars[i+1] if i < N-1 else None
+        if parsed_chars[i] == '0' and (is_letter(prev_char) or is_letter(next_char)):
+            refined_chars.append('O')
+        elif parsed_chars[i] == 'Z' and (is_digit(prev_char) or is_digit(next_char)):
+            refined_chars.append('2')
+        elif parsed_chars[i] == 'G' and (is_digit(prev_char) or is_digit(next_char)):
+            refined_chars.append('6')
+        elif parsed_chars[i] == 'g' and (is_digit(prev_char) or is_digit(next_char)):
+            refined_chars.append('9')
+        elif parsed_chars[i] == 'A' and (is_digit(prev_char) or is_digit(next_char)):
+            refined_chars.append('4')
+        else:
+            refined_chars.append(parsed_chars[i])
+
+    return refined_chars
+

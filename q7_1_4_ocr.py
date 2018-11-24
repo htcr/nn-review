@@ -104,7 +104,7 @@ for img in os.listdir('../images'):
     
     print('===== image {} content ====='.format(img))
     print(''.join(ans_char_list))
-    refined_char_list = context_refine(ans_char_list)
+    refined_char_list = context_refine2(ans_char_list)
     print('refined: ')
     print(''.join(refined_char_list))
     
